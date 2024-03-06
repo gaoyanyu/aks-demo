@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"k8s.io/klog/v2"
+
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -21,21 +23,6 @@ func ExecCMD(infoFile, errFile *os.File, command string, args ...string) (int, e
 
 	stdout, _ := cmd.StdoutPipe()
 	stderr, _ := cmd.StderrPipe()
-	//defer func() {
-	//	if infoFile != nil {
-	//		err := infoFile.Close()
-	//		if err != nil {
-	//			klog.Errorf("close info file failed %s", err.Error())
-	//		}
-	//	}
-	//
-	//	if errFile != nil {
-	//		err := errFile.Close()
-	//		if err != nil {
-	//			klog.Errorf("close error file failed %s", err.Error())
-	//		}
-	//	}
-	//}()
 
 	if infoFile != nil {
 		cmd.Stdout = infoFile
@@ -49,8 +36,14 @@ func ExecCMD(infoFile, errFile *os.File, command string, args ...string) (int, e
 		return -999, err, ""
 	}
 
-	output, _ := ioutil.ReadAll(stdout)
-	errput, _ := ioutil.ReadAll(stderr)
+	output, err1 := ioutil.ReadAll(stdout)
+	if err1 != nil {
+		klog.Error(err1)
+	}
+	errput, err2 := ioutil.ReadAll(stderr)
+	if err2 != nil {
+		klog.Error(err2)
+	}
 
 	err := make(chan error, 1)
 	go func() {

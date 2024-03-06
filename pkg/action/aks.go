@@ -135,7 +135,7 @@ func UpdateAks(master string) error {
 		errFile = nil
 	}
 
-	update := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm upgrade ", master)
+	update := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm upgrade plan", master)
 	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", update)
 	klog.Infof("update k8s output: %s", output)
 	if err != nil {
