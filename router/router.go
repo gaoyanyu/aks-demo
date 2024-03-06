@@ -31,8 +31,8 @@ func initV1Router(router *gin.RouterGroup) {
 	version.GET("/version", service.Version)
 
 	k8s := router.Group("/aks")
-	k8s.GET("/get", service.GetAks)
-	k8s.POST("/create", service.CreateAks)
-	k8s.PUT("/update", service.UpdateAks)
-	k8s.DELETE("/delete", service.DeleteAks)
+	k8s.GET("/detail", service.GetAks)
+	k8s.POST("", service.CreateAks)
+	k8s.PUT("", service.UpdateAks)
+	k8s.DELETE("", service.DeleteAks)
 }
