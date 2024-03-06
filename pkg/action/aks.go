@@ -73,7 +73,12 @@ func GetAks(master string) (error, response.AKSInfo) {
 	if res != 0 {
 		return errors.New(fmt.Sprintf("Fail to check k8s node, code:%d, err:%+v, output: %s", res, err, output)), aksInfo
 	}
-	aksInfo.NodeNum = strings.Count(output, "Ready")
+
+	nodeNum := strings.Count(output, "Ready")
+	if nodeNum < 1 {
+		return errors.New("not found"), response.AKSInfo{}
+	}
+	aksInfo.NodeNum = nodeNum
 
 	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion", master)
 	res, err, output = util.ExecShortCMD("bash", "-c", kubeVersion)

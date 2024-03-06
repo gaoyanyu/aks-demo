@@ -5,8 +5,10 @@ import (
 	"aks-demo/model/response"
 	"aks-demo/pkg/action"
 	"aks-demo/pkg/util"
+	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 
@@ -51,6 +53,10 @@ func GetAks(c *gin.Context) {
 	err, res := action.GetAks(master)
 	if err != nil {
 		klog.Error(err)
+		if reflect.DeepEqual(err, errors.New("not found")) {
+			c.JSON(http.StatusNotFound, response.Result{Code: http.StatusNotFound, Message: err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
