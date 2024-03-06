@@ -34,7 +34,7 @@ func CreateAks(master string) error {
 	}
 
 	// mv k8s config
-	changeConfigPath := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s mkdir -p $HOME/.kube && sudo cp -rf /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config", master)
+	changeConfigPath := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s mkdir -p $HOME/.kube && cp -rf /etc/kubernetes/admin.conf $HOME/.kube/config && chown $(id -u):$(id -g) $HOME/.kube/config", master)
 	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", changeConfigPath)
 	klog.Infof("changeConfigPath output: %s", output)
 	if err != nil {
