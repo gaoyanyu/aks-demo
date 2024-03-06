@@ -46,7 +46,7 @@ func CreateAks(master string) error {
 	}
 
 	// install calico cni
-	installCalico := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl create -f /root/yanyu/calico/tigera-operator.yaml && kubectl create -f /root/yanyu/calico/custom-resources.yaml", master)
+	installCalico := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'kubectl create -f /root/yanyu/calico/tigera-operator.yaml && kubectl create -f /root/yanyu/calico/custom-resources.yaml'", master)
 	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", installCalico)
 	klog.Infof("installCalico output: %s", output)
 	if err != nil {
