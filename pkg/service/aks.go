@@ -48,14 +48,14 @@ func GetAks(c *gin.Context) {
 		return
 	}
 
-	err, kubeVersion := action.GetAks(master)
+	err, res := action.GetAks(master)
 	if err != nil {
 		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to get aks", Data: []string{kubeVersion}})
+	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to get aks", Data: res})
 }
 
 func DeleteAks(c *gin.Context) {

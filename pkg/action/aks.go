@@ -1,10 +1,12 @@
 package action
 
 import (
+	"aks-demo/model/response"
 	"aks-demo/pkg/util"
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"k8s.io/klog/v2"
 )
@@ -60,41 +62,31 @@ func CreateAks(master string) error {
 	return nil
 }
 
-func GetAks(master string) (error, string) {
-	//infoFile, err := os.Create(fmt.Sprintf("%s/%s.get.info.log", fmt.Sprintf("./logs"), master))
-	//if err != nil {
-	//	klog.Errorf("create master %s info file failed", master)
-	//	infoFile = nil
-	//}
-	//errFile, err := os.Create(fmt.Sprintf("%s/%s.get.err.log", fmt.Sprintf("./logs"), master))
-	//if err != nil {
-	//	klog.Errorf("create master %s error file failed", master)
-	//	errFile = nil
-	//}
-
+func GetAks(master string) (error, response.AKSInfo) {
+	var aksInfo response.AKSInfo
 	node := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready", master)
 	res, err, output := util.ExecShortCMD("bash", "-c", node)
-	klog.Infof("node output: %s", output)
 	if err != nil {
 		klog.Error(err)
-		return err, ""
+		return err, aksInfo
 	}
 	if res != 0 {
-		return errors.New(fmt.Sprintf("Fail to check k8s node, code:%d, err:%+v, output: %s", res, err, output)), ""
+		return errors.New(fmt.Sprintf("Fail to check k8s node, code:%d, err:%+v, output: %s", res, err, output)), aksInfo
 	}
+	aksInfo.NodeNum = strings.Count(output, "Ready")
 
 	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion", master)
 	res, err, output = util.ExecShortCMD("bash", "-c", kubeVersion)
-	klog.Infof("kubeVersion output: %s", output)
 	if err != nil {
 		klog.Error(err)
-		return err, ""
+		return err, aksInfo
 	}
 	if res != 0 {
-		return errors.New(fmt.Sprintf("Fail to check cni, code:%d, err:%+v, output: %s", res, err, output)), ""
+		return errors.New(fmt.Sprintf("Fail to check cni, code:%d, err:%+v, output: %s", res, err, output)), aksInfo
 	}
+	aksInfo.K8sVersion = "v1.21.5"
 
-	return nil, output
+	return nil, aksInfo
 }
 
 func DeleteAks(master string) error {
