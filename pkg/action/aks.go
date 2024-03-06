@@ -4,6 +4,8 @@ import (
 	"aks-demo/pkg/util"
 	"errors"
 	"fmt"
+
+	"k8s.io/klog/v2"
 )
 
 func CreateAks(master string) error {
@@ -11,6 +13,7 @@ func CreateAks(master string) error {
 	createAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm init --kubernetes-version=v1.21.5 --image-repository=registry.sensetime.com/diamond --apiserver-advertise-address=%s --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 -v=10", master, master)
 	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", createAction)
 	if err != nil {
+		klog.Error(err)
 		return err
 	}
 	if res != 0 {
@@ -21,6 +24,7 @@ func CreateAks(master string) error {
 	changeConfigPath := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s mkdir -p $HOME/.kube && sudo cp -rf /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config", master)
 	res, err, output = util.ExecCMD(nil, nil, "bash", "-c", changeConfigPath)
 	if err != nil {
+		klog.Error(err)
 		return err
 	}
 	if res != 0 {
@@ -31,6 +35,7 @@ func CreateAks(master string) error {
 	installCalico := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl create -f /root/yanyu/calico/tigera-operator.yaml && kubectl create -f /root/yanyu/calico/custom-resources.yaml", master)
 	res, err, output = util.ExecCMD(nil, nil, "bash", "-c", installCalico)
 	if err != nil {
+		klog.Error(err)
 		return err
 	}
 	if res != 0 {
@@ -44,6 +49,7 @@ func GetAks(master string) error {
 	k8s := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready |wc -l", master)
 	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", k8s)
 	if err != nil {
+		klog.Error(err)
 		return err
 	}
 	if res != 0 {
@@ -53,6 +59,7 @@ func GetAks(master string) error {
 	cni := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get pod -n calico-system -owide | grep -v Running | grep -v NAME |wc -l", master)
 	res, err, output = util.ExecCMD(nil, nil, "bash", "-c", cni)
 	if err != nil {
+		klog.Error(err)
 		return err
 	}
 	if res != 0 {
@@ -66,6 +73,7 @@ func DeleteAks(master string) error {
 	action := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm reset -f", master)
 	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", action)
 	if err != nil {
+		klog.Error(err)
 		return err
 	}
 	if res != 0 {
@@ -79,6 +87,7 @@ func UpdateAks(master string) error {
 	action := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm upgrade ", master)
 	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", action)
 	if err != nil {
+		klog.Error(err)
 		return err
 	}
 	if res != 0 {
