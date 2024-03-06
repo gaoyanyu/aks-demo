@@ -1,6 +1,7 @@
 package service
 
 import (
+	"aks-demo/model/request"
 	"aks-demo/model/response"
 	"aks-demo/pkg/action"
 	"aks-demo/pkg/util"
@@ -17,19 +18,19 @@ func Version(c *gin.Context) {
 }
 
 func CreateAks(c *gin.Context) {
-	var master string
-	if err := c.BindJSON(&master); err != nil {
+	var createInfo request.CreateBody
+	if err := c.BindJSON(&createInfo); err != nil {
 		c.JSON(http.StatusBadRequest, response.Result{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
-	cmd := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s ps aux| grep 'kubeadm init' | grep -v grep|wc -l", master)
+	cmd := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s ps aux| grep 'kubeadm init' | grep -v grep|wc -l", createInfo.Master)
 	if exist, err := util.EnsureProcessExist(cmd); err == nil && exist {
 		c.JSON(http.StatusConflict, response.Result{Code: http.StatusConflict, Message: "aks is initing"})
 		return
 	}
 
-	err := action.CreateAks(master)
+	err := action.CreateAks(createInfo.Master)
 	if err != nil {
 		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -70,13 +71,13 @@ func DeleteAks(c *gin.Context) {
 }
 
 func UpdateAks(c *gin.Context) {
-	var master string
-	if err := c.BindJSON(&master); err != nil {
+	var updateInfo request.UpdateBody
+	if err := c.BindJSON(&updateInfo); err != nil {
 		c.JSON(http.StatusBadRequest, response.Result{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
-	err := action.UpdateAks(master)
+	err := action.UpdateAks(updateInfo.Master)
 	if err != nil {
 		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
