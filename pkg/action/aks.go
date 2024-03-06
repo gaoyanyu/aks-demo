@@ -72,7 +72,7 @@ func GetAks(master string) (error, string) {
 		errFile = nil
 	}
 
-	node := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready |wc -l", master)
+	node := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready", master)
 	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", node)
 	klog.Infof("node output: %s", output)
 	if err != nil {
@@ -83,7 +83,7 @@ func GetAks(master string) (error, string) {
 		return errors.New(fmt.Sprintf("Fail to check k8s, code:%d, err:%+v, output: %s", res, err, output)), ""
 	}
 
-	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion | awk '{print $5}'", master)
+	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion", master)
 	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", kubeVersion)
 	klog.Infof("kubeVersion output: %s", output)
 	if err != nil {
