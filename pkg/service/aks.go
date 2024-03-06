@@ -17,8 +17,8 @@ func Version(c *gin.Context) {
 }
 
 func CreateAks(c *gin.Context) {
-	var masters []string
-	if err := c.BindJSON(&masters); err != nil {
+	var master string
+	if err := c.BindJSON(&master); err != nil {
 		c.JSON(http.StatusBadRequest, response.Result{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
@@ -29,7 +29,7 @@ func CreateAks(c *gin.Context) {
 		return
 	}
 
-	err := action.CreateAks(masters[0])
+	err := action.CreateAks(master)
 	if err != nil {
 		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -70,13 +70,13 @@ func DeleteAks(c *gin.Context) {
 }
 
 func UpdateAks(c *gin.Context) {
-	var masters []string
-	if err := c.BindJSON(&masters); err != nil {
+	var master string
+	if err := c.BindJSON(&master); err != nil {
 		c.JSON(http.StatusBadRequest, response.Result{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
-	err := action.UpdateAks(masters[0])
+	err := action.UpdateAks(master)
 	if err != nil {
 		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})

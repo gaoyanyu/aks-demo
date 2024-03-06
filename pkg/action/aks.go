@@ -10,9 +10,21 @@ import (
 )
 
 func CreateAks(master string) error {
+	infoFile, err := os.Create(fmt.Sprintf("%s/%s.create.info.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s info file failed", master)
+		infoFile = nil
+	}
+	errFile, err := os.Create(fmt.Sprintf("%s/%s.create.err.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s error file failed", master)
+		errFile = nil
+	}
+
 	// init k8s cluster
 	createAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm init --kubernetes-version=v1.21.5 --image-repository=registry.sensetime.com/diamond --apiserver-advertise-address=%s --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 -v=10", master, master)
-	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", createAction)
+	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", createAction)
+	klog.Infof("init k8s output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err
@@ -23,7 +35,8 @@ func CreateAks(master string) error {
 
 	// mv k8s config
 	changeConfigPath := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s mkdir -p $HOME/.kube && sudo cp -rf /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config", master)
-	res, err, output = util.ExecCMD(nil, nil, "bash", "-c", changeConfigPath)
+	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", changeConfigPath)
+	klog.Infof("changeConfigPath output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err
@@ -34,7 +47,8 @@ func CreateAks(master string) error {
 
 	// install calico cni
 	installCalico := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl create -f /root/yanyu/calico/tigera-operator.yaml && kubectl create -f /root/yanyu/calico/custom-resources.yaml", master)
-	res, err, output = util.ExecCMD(nil, nil, "bash", "-c", installCalico)
+	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", installCalico)
+	klog.Infof("installCalico output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err
@@ -59,7 +73,6 @@ func GetAks(master string) (error, string) {
 	}
 
 	node := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready |wc -l", master)
-	klog.Infof(node)
 	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", node)
 	klog.Infof("node output: %s", output)
 	if err != nil {
@@ -71,7 +84,6 @@ func GetAks(master string) (error, string) {
 	}
 
 	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion | awk '{print $5}'", master)
-	klog.Infof(kubeVersion)
 	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", kubeVersion)
 	klog.Infof("kubeVersion output: %s", output)
 	if err != nil {
@@ -98,7 +110,6 @@ func DeleteAks(master string) error {
 	}
 
 	delete := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm reset -f", master)
-	klog.Infof(delete)
 	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", delete)
 	klog.Infof("delete output: %s", output)
 	if err != nil {
@@ -113,8 +124,20 @@ func DeleteAks(master string) error {
 }
 
 func UpdateAks(master string) error {
-	action := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm upgrade ", master)
-	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", action)
+	infoFile, err := os.Create(fmt.Sprintf("%s/%s.update.info.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s info file failed", master)
+		infoFile = nil
+	}
+	errFile, err := os.Create(fmt.Sprintf("%s/%s.update.err.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s error file failed", master)
+		errFile = nil
+	}
+
+	update := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm upgrade ", master)
+	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", update)
+	klog.Infof("update k8s output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err
