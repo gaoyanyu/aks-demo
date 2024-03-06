@@ -1,4 +1,5 @@
-FROM golang:alpine3.14 as builder
+#FROM golang:alpine3.14 as builder
+FROM registry.sensetime.com/sensecore-lepton/golang:1.20-alpine as builder
 
 WORKDIR /root/
 COPY . .
