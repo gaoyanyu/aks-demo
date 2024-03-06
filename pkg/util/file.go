@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	_pullDir := fmt.Sprintf("%s/aks", "./logs")
+	_pullDir := fmt.Sprintf("./logs")
 	if exist, _ := pathExists(_pullDir); !exist {
 		err := os.Mkdir(_pullDir, os.ModePerm)
 		if err != nil {

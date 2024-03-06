@@ -4,6 +4,7 @@ import (
 	"aks-demo/pkg/util"
 	"errors"
 	"fmt"
+	"os"
 
 	"k8s.io/klog/v2"
 )
@@ -46,9 +47,21 @@ func CreateAks(master string) error {
 }
 
 func GetAks(master string) (error, string) {
-	k8s := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready |wc -l", master)
-	klog.Infof(k8s)
-	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", k8s)
+	infoFile, err := os.Create(fmt.Sprintf("%s/%s.get.info.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s info file failed", master)
+		infoFile = nil
+	}
+	errFile, err := os.Create(fmt.Sprintf("%s/%s.get.err.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s error file failed", master)
+		errFile = nil
+	}
+
+	node := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready |wc -l", master)
+	klog.Infof(node)
+	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", node)
+	klog.Infof("node output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err, ""
@@ -57,9 +70,10 @@ func GetAks(master string) (error, string) {
 		return errors.New(fmt.Sprintf("Fail to check k8s, code:%d, err:%+v, output: %s", res, err, output)), ""
 	}
 
-	cni := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion | awk '{print $5}'", master)
-	klog.Infof(cni)
-	res, err, output = util.ExecCMD(nil, nil, "bash", "-c", cni)
+	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion | awk '{print $5}'", master)
+	klog.Infof(kubeVersion)
+	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", kubeVersion)
+	klog.Infof("kubeVersion output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err, ""
@@ -72,8 +86,21 @@ func GetAks(master string) (error, string) {
 }
 
 func DeleteAks(master string) error {
-	action := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm reset -f", master)
-	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", action)
+	infoFile, err := os.Create(fmt.Sprintf("%s/%s.delete.info.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s info file failed", master)
+		infoFile = nil
+	}
+	errFile, err := os.Create(fmt.Sprintf("%s/%s.delete.err.log", fmt.Sprintf("./logs"), master))
+	if err != nil {
+		klog.Errorf("create master %s error file failed", master)
+		errFile = nil
+	}
+
+	delete := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm reset -f", master)
+	klog.Infof(delete)
+	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", delete)
+	klog.Infof("delete output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err
