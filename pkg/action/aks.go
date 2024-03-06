@@ -45,28 +45,30 @@ func CreateAks(master string) error {
 	return nil
 }
 
-func GetAks(master string) error {
+func GetAks(master string) (error, string) {
 	k8s := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready |wc -l", master)
+	klog.Infof(k8s)
 	res, err, output := util.ExecCMD(nil, nil, "bash", "-c", k8s)
 	if err != nil {
 		klog.Error(err)
-		return err
+		return err, ""
 	}
 	if res != 0 {
-		return errors.New(fmt.Sprintf("Fail to check k8s, code:%d, err:%+v, output: %s", res, err, output))
+		return errors.New(fmt.Sprintf("Fail to check k8s, code:%d, err:%+v, output: %s", res, err, output)), ""
 	}
 
-	cni := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get pod -n calico-system -owide | grep -v Running | grep -v NAME |wc -l", master)
+	cni := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion | awk '{print $5}'", master)
+	klog.Infof(cni)
 	res, err, output = util.ExecCMD(nil, nil, "bash", "-c", cni)
 	if err != nil {
 		klog.Error(err)
-		return err
+		return err, ""
 	}
 	if res != 0 {
-		return errors.New(fmt.Sprintf("Fail to check cni, code:%d, err:%+v, output: %s", res, err, output))
+		return errors.New(fmt.Sprintf("Fail to check cni, code:%d, err:%+v, output: %s", res, err, output)), ""
 	}
 
-	return nil
+	return nil, output
 }
 
 func DeleteAks(master string) error {
