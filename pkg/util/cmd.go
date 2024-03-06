@@ -10,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-
-	"k8s.io/klog/v2"
 )
 
 func ExecCMD(infoFile, errFile *os.File, command string, args ...string) (int, error, string) {
@@ -23,21 +21,21 @@ func ExecCMD(infoFile, errFile *os.File, command string, args ...string) (int, e
 
 	stdout, _ := cmd.StdoutPipe()
 	stderr, _ := cmd.StderrPipe()
-	defer func() {
-		if infoFile != nil {
-			err := infoFile.Close()
-			if err != nil {
-				klog.Errorf("close info file failed %s", err.Error())
-			}
-		}
-
-		if errFile != nil {
-			err := errFile.Close()
-			if err != nil {
-				klog.Errorf("close error file failed %s", err.Error())
-			}
-		}
-	}()
+	//defer func() {
+	//	if infoFile != nil {
+	//		err := infoFile.Close()
+	//		if err != nil {
+	//			klog.Errorf("close info file failed %s", err.Error())
+	//		}
+	//	}
+	//
+	//	if errFile != nil {
+	//		err := errFile.Close()
+	//		if err != nil {
+	//			klog.Errorf("close error file failed %s", err.Error())
+	//		}
+	//	}
+	//}()
 
 	if infoFile != nil {
 		cmd.Stdout = infoFile
