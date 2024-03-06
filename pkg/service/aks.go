@@ -23,7 +23,7 @@ func CreateAks(c *gin.Context) {
 		return
 	}
 
-	cmd := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s ps aux| grep 'kubeadm init' | grep -v grep|wc -l", masters[0])
+	cmd := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s ps aux| grep 'kubeadm init' | grep -v grep|wc -l", master)
 	if exist, err := util.EnsureProcessExist(cmd); err == nil && exist {
 		c.JSON(http.StatusConflict, response.Result{Code: http.StatusConflict, Message: "aks is initing"})
 		return
