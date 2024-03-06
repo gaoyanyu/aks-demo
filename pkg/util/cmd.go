@@ -27,17 +27,16 @@ func ExecCMD(infoFile, errFile *os.File, command string, args ...string) (int, e
 		if infoFile != nil {
 			err := infoFile.Close()
 			if err != nil {
-				klog.Errorf("close info file failed! ", infoFile)
+				klog.Errorf("close info file failed %s", err.Error())
 			}
 		}
 
 		if errFile != nil {
 			err := errFile.Close()
 			if err != nil {
-				klog.Errorf("close error file failed! ", infoFile)
+				klog.Errorf("close error file failed %s", err.Error())
 			}
 		}
-
 	}()
 
 	if infoFile != nil {
