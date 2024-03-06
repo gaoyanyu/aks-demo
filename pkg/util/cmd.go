@@ -64,7 +64,7 @@ func ExecCMD(infoFile, errFile *os.File, command string, args ...string) (int, e
 }
 
 func EnsureProcessExist(cmd string) (bool, error) {
-	res, err, output := ExecCMD(nil, nil, "bash", "-c", cmd)
+	res, err, output := ExecShortCMD("bash", "-c", cmd)
 	if err != nil {
 		return false, err
 	}
@@ -76,4 +76,22 @@ func EnsureProcessExist(cmd string) (bool, error) {
 		return false, err
 	}
 	return count >= 1, nil
+}
+
+func ExecShortCMD(command string, args ...string) (int, error, string) {
+	cmd := exec.Command(command, args...)
+	//设置该cmd在原来的进程组
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true,
+	}
+
+	stdout, err := cmd.CombinedOutput()
+	if err != nil {
+		if ex, ok := err.(*exec.ExitError); ok {
+			return ex.Sys().(syscall.WaitStatus).ExitStatus(), err, string(stdout)
+		}
+		return -999, err, string(stdout)
+	}
+
+	return 0, nil, string(stdout)
 }

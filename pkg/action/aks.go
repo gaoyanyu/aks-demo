@@ -22,8 +22,8 @@ func CreateAks(master string) error {
 	}
 
 	// init k8s cluster
-	createAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm init --kubernetes-version=v1.21.5 --image-repository=registry.sensetime.com/diamond --apiserver-advertise-address=%s --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 -v=10", master, master)
-	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", createAction)
+	initAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm init --kubernetes-version=v1.21.5 --image-repository=registry.sensetime.com/diamond --apiserver-advertise-address=%s --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 -v=10", master, master)
+	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", initAction)
 	klog.Infof("init k8s output: %s", output)
 	if err != nil {
 		klog.Error(err)
@@ -61,30 +61,30 @@ func CreateAks(master string) error {
 }
 
 func GetAks(master string) (error, string) {
-	infoFile, err := os.Create(fmt.Sprintf("%s/%s.get.info.log", fmt.Sprintf("./logs"), master))
-	if err != nil {
-		klog.Errorf("create master %s info file failed", master)
-		infoFile = nil
-	}
-	errFile, err := os.Create(fmt.Sprintf("%s/%s.get.err.log", fmt.Sprintf("./logs"), master))
-	if err != nil {
-		klog.Errorf("create master %s error file failed", master)
-		errFile = nil
-	}
+	//infoFile, err := os.Create(fmt.Sprintf("%s/%s.get.info.log", fmt.Sprintf("./logs"), master))
+	//if err != nil {
+	//	klog.Errorf("create master %s info file failed", master)
+	//	infoFile = nil
+	//}
+	//errFile, err := os.Create(fmt.Sprintf("%s/%s.get.err.log", fmt.Sprintf("./logs"), master))
+	//if err != nil {
+	//	klog.Errorf("create master %s error file failed", master)
+	//	errFile = nil
+	//}
 
 	node := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl get node -owide | grep Ready", master)
-	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", node)
+	res, err, output := util.ExecShortCMD("bash", "-c", node)
 	klog.Infof("node output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err, ""
 	}
 	if res != 0 {
-		return errors.New(fmt.Sprintf("Fail to check k8s, code:%d, err:%+v, output: %s", res, err, output)), ""
+		return errors.New(fmt.Sprintf("Fail to check k8s node, code:%d, err:%+v, output: %s", res, err, output)), ""
 	}
 
 	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion", master)
-	res, err, output = util.ExecCMD(infoFile, errFile, "bash", "-c", kubeVersion)
+	res, err, output = util.ExecShortCMD("bash", "-c", kubeVersion)
 	klog.Infof("kubeVersion output: %s", output)
 	if err != nil {
 		klog.Error(err)
@@ -109,15 +109,15 @@ func DeleteAks(master string) error {
 		errFile = nil
 	}
 
-	delete := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm reset -f", master)
-	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", delete)
+	deleteAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm reset -f", master)
+	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", deleteAction)
 	klog.Infof("delete output: %s", output)
 	if err != nil {
 		klog.Error(err)
 		return err
 	}
 	if res != 0 {
-		return errors.New(fmt.Sprintf("Fail to delete aks, code:%d, err:%+v, output: %s", res, err, output))
+		return errors.New(fmt.Sprintf("Fail to delete k8s, code:%d, err:%+v, output: %s", res, err, output))
 	}
 
 	return nil
