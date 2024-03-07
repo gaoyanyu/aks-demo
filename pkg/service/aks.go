@@ -5,14 +5,10 @@ import (
 	"aks-demo/model/response"
 	"aks-demo/pkg/action"
 	"aks-demo/pkg/util"
-	"errors"
 	"fmt"
 	"net/http"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
-
-	"k8s.io/klog/v2"
 )
 
 func Version(c *gin.Context) {
@@ -34,7 +30,6 @@ func CreateAks(c *gin.Context) {
 
 	err := action.CreateAks(createInfo.Master, createInfo.Version)
 	if err != nil {
-		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -52,12 +47,7 @@ func GetAks(c *gin.Context) {
 
 	err, res := action.GetAks(master)
 	if err != nil {
-		klog.Error(err)
-		if reflect.DeepEqual(err, errors.New("not found")) {
-			c.JSON(http.StatusNotFound, response.Result{Code: http.StatusNotFound, Message: "k8s cluster not found!"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
+		c.JSON(http.StatusNotFound, response.Result{Code: http.StatusNotFound, Message: "k8s cluster not found!"})
 		return
 	}
 
@@ -68,7 +58,6 @@ func DeleteAks(c *gin.Context) {
 	master := c.GetHeader("master")
 	err := action.DeleteAks(master)
 	if err != nil {
-		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -85,7 +74,6 @@ func UpdateAks(c *gin.Context) {
 
 	err := action.UpdateAks(updateInfo.Master)
 	if err != nil {
-		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
