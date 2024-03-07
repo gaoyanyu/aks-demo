@@ -11,7 +11,7 @@ import (
 	"k8s.io/klog/v2"
 )
 
-func CreateAks(master string) error {
+func CreateAks(master, version string) error {
 	infoFile, err := os.Create(fmt.Sprintf("%s/%s.create.info.log", fmt.Sprintf("./logs"), master))
 	if err != nil {
 		klog.Errorf("create master %s info file failed", master)
@@ -24,7 +24,7 @@ func CreateAks(master string) error {
 	}
 
 	// init k8s cluster
-	initAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm init --kubernetes-version=v1.21.5 --image-repository=registry.sensetime.com/diamond --apiserver-advertise-address=%s --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 -v=10", master, master)
+	initAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubeadm init --kubernetes-version=%s --image-repository=registry.sensetime.com/diamond --apiserver-advertise-address=%s --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 -v=10", master, version, master)
 	res, err, output := util.ExecCMD(infoFile, errFile, "bash", "-c", initAction)
 	klog.Infof("init k8s output: %s", output)
 	if err != nil {

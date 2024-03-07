@@ -32,7 +32,7 @@ func CreateAks(c *gin.Context) {
 		return
 	}
 
-	err := action.CreateAks(createInfo.Master)
+	err := action.CreateAks(createInfo.Master, createInfo.Version)
 	if err != nil {
 		klog.Error(err)
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -54,7 +54,7 @@ func GetAks(c *gin.Context) {
 	if err != nil {
 		klog.Error(err)
 		if reflect.DeepEqual(err, errors.New("not found")) {
-			c.JSON(http.StatusNotFound, response.Result{Code: http.StatusNotFound, Message: err.Error()})
+			c.JSON(http.StatusNotFound, response.Result{Code: http.StatusNotFound, Message: "k8s cluster not found!"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
