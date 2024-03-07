@@ -39,7 +39,7 @@ func CreateAks(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to create aks"})
+	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to create k8s cluster"})
 }
 
 func GetAks(c *gin.Context) {
@@ -61,7 +61,7 @@ func GetAks(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to get aks", Data: res})
+	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to get k8s cluster", Data: res})
 }
 
 func DeleteAks(c *gin.Context) {
@@ -73,7 +73,7 @@ func DeleteAks(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to delete aks"})
+	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to delete k8s cluster"})
 }
 
 func UpdateAks(c *gin.Context) {
@@ -90,5 +90,5 @@ func UpdateAks(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to delete aks"})
+	c.JSON(http.StatusOK, response.Result{Code: http.StatusOK, Message: "Success to update k8s cluster"})
 }
