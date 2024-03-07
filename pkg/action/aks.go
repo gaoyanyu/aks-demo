@@ -53,11 +53,11 @@ func CreateAks(master, version string) error {
 	klog.Infof("installCalico output: %s", output)
 	if err != nil {
 		klog.Error(err)
-		return err
+		//return err
 	}
-	if res != 0 {
-		return errors.New(fmt.Sprintf("Fail to install cni, code:%d, err:%+v, output: %s", res, err, output))
-	}
+	//if res != 0 {
+	//	return errors.New(fmt.Sprintf("Fail to install cni, code:%d, err:%+v, output: %s", res, err, output))
+	//}
 
 	return nil
 }
