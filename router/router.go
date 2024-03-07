@@ -28,7 +28,7 @@ func init() {
 
 func initV1Router(router *gin.RouterGroup) {
 	version := router.Group("/version")
-	version.GET("/version", service.Version)
+	version.GET("", service.Version)
 
 	k8s := router.Group("/aks")
 	k8s.GET("/detail", service.GetAks)
