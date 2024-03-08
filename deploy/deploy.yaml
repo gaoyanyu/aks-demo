@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lepton-aks-service
+  namespace: plat-lepton-service
+  labels:
+    app: lepton-aks-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lepton-aks-service
+  template:
+    metadata:
+      labels:
+        app: lepton-aks-service
+      annotations:
+        prometheus.io/scrape: 'false'
+    spec:
+      imagePullSecrets:
+        - name: sensecore-lepton
+      dnsPolicy: ClusterFirst
+      tolerations:
+        - key: "node.kubernetes.io/unschedulable"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: lepton-aks-service
+          image: registry.sensetime.com/sensecore-lepton/ubuntu:test-demo
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: web
+          resources:
+            limits:
+              cpu: 1
+              memory: 2Gi
+            requests:
+              cpu: 1
+              memory: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: lepton-aks-service
+  name: lepton-aks-service
+  namespace: plat-lepton-service
+spec:
+  externalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: rest
+      nodePort: 52000
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: lepton-aks-service
+  sessionAffinity: None
+  type: NodePort
