@@ -11,6 +11,21 @@ import (
 	"k8s.io/klog/v2"
 )
 
+func CreateAksShort(master, version string) error {
+	// bash script to init k8s cluster
+	initAction := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s bash /root/yanyu/install-k8s.sh", master)
+	res, err, output := util.ExecShortCMD("bash", "-c", initAction)
+	klog.Infof("init k8s output: %s", output)
+	if err != nil {
+		klog.Error(err)
+	}
+	if res != 0 {
+		klog.Error(fmt.Sprintf("Fail to create aks, code:%d, err:%+v, output: %s", res, err, output))
+	}
+
+	return nil
+}
+
 func CreateAks(master, version string) error {
 	infoFile, err := os.Create(fmt.Sprintf("%s/%s.create.info.log", fmt.Sprintf("./logs"), master))
 	if err != nil {

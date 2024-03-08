@@ -28,7 +28,7 @@ func CreateAks(c *gin.Context) {
 		return
 	}
 
-	err := action.CreateAks(createInfo.Master, createInfo.Version)
+	err := action.CreateAksShort(createInfo.Master, createInfo.Version)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.Result{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
