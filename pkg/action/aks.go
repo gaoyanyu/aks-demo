@@ -100,8 +100,9 @@ func GetAks(master string) (error, response.AKSInfo) {
 	if res != 0 {
 		return errors.New(fmt.Sprintf("Fail to check cni, code:%d, err:%+v, output: %s", res, err, output)), aksInfo
 	}
-	cutStr := "Warning: Permanently added '10.119.250.16' (ED25519) to the list of known hosts.\\r\\nAuthorized uses only. All activity may be monitored and reported.\\n"
-	kube := strings.TrimLeft(output, cutStr)
+	cut1Str := "Warning: Permanently added '10.119.250.16' (ED25519) to the list of known hosts."
+	cut2Str := "Authorized uses only. All activity may be monitored and reported."
+	kube := strings.TrimLeft(strings.TrimLeft(strings.TrimLeft(strings.TrimLeft(output, cut1Str), "\n"), cut2Str), "\n")
 	aksInfo.KubeConfig = kube
 
 	return nil, aksInfo
