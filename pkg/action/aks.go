@@ -79,9 +79,20 @@ func GetAks(master string) (error, response.AKSInfo) {
 		return errors.New("not found"), response.AKSInfo{}
 	}
 	aksInfo.NodeNum = nodeNum
+	aksInfo.K8sVersion = "v1.21.5"
 
-	kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion", master)
-	res, err, output = util.ExecShortCMD("bash", "-c", kubeVersion)
+	//kubeVersion := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s kubectl version | grep Server | grep GitVersion", master)
+	//res, err, output = util.ExecShortCMD("bash", "-c", kubeVersion)
+	//if err != nil {
+	//	klog.Error(err)
+	//	return err, aksInfo
+	//}
+	//if res != 0 {
+	//	return errors.New(fmt.Sprintf("Fail to check cni, code:%d, err:%+v, output: %s", res, err, output)), aksInfo
+	//}
+
+	kubeConfig := fmt.Sprintf("sshpass -p 235659YANyy@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s cat $HOME/.kube/config", master)
+	res, err, output = util.ExecShortCMD("bash", "-c", kubeConfig)
 	if err != nil {
 		klog.Error(err)
 		return err, aksInfo
@@ -89,7 +100,7 @@ func GetAks(master string) (error, response.AKSInfo) {
 	if res != 0 {
 		return errors.New(fmt.Sprintf("Fail to check cni, code:%d, err:%+v, output: %s", res, err, output)), aksInfo
 	}
-	aksInfo.K8sVersion = "v1.21.5"
+	aksInfo.KubeConfig = output
 
 	return nil, aksInfo
 }
