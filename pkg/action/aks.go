@@ -102,7 +102,8 @@ func GetAks(master string) (error, response.AKSInfo) {
 	}
 	cut1Str := "Warning: Permanently added '10.119.250.16' (ED25519) to the list of known hosts."
 	cut2Str := "Authorized uses only. All activity may be monitored and reported."
-	kube := strings.TrimLeft(strings.TrimLeft(strings.TrimLeft(strings.TrimLeft(output, cut1Str), "\n"), cut2Str), "\n")
+
+	kube := strings.TrimLeft(strings.TrimLeft(strings.TrimLeft(strings.TrimLeft(strings.TrimLeft(output, cut1Str), "\r"), "\n"), cut2Str), "\n")
 	aksInfo.KubeConfig = kube
 
 	return nil, aksInfo
